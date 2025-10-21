@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "499722278366",
+    "project_id": "yonder-e2748",
+    "storage_bucket": "yonder-e2748.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:499722278366:android:94412e93c295ce0c31b94f",
+        "android_client_info": {
+          "package_name": "com.josetra.yonder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "499722278366-tpiq5vck9ib1l1c0kb9llk4mdii253n5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.josetra.yonder",
+            "certificate_hash": "96ba200bf238cc4f39c3e2f32f6afabe4dddf1e3"
+          }
+        },
+        {
+          "client_id": "499722278366-k7c98vff08jkqiu0q49l5i6k3kt1obro.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZ8uzLGHlD_xqWey4mtSpatZP4_IVnoWk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "499722278366-k7c98vff08jkqiu0q49l5i6k3kt1obro.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Yonder</string>
+    <string name="default_web_client_id">499722278366-tpiq5vck9ib1l1c0kb9llk4mdii253n5.apps.googleusercontent.com</string>
+
+    <!-- Cadenas para pantalla de inicio de sesión -->
+    <string name="welcome_title">Bienvenido a Yonder</string>
+    <string name="login_with_google">Iniciar sesión con Google</string>
+    <string name="or_separator">— o —</string>
+    <string name="email_hint">Correo electrónico</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="login_button">Iniciar sesión</string>
+    <string name="no_account_question">¿No tienes cuenta?</string>
+    <string name="register_now">Regístrate</string>
+    <string name="register_title">Crear Cuenta</string>
+    <string name="full_name">Nombre completo</string>
+    <string name="university">Universidad</string>
+    <string name="major">Carrera</string>
+    <string name="university_code">Código universitario</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="register">Registrarse</string>
+    <string name="already_have_account">¿Ya tienes una cuenta? Inicia sesión</string>
+
+</resources>
