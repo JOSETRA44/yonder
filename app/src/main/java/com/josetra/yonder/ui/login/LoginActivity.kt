@@ -1,106 +1,116 @@
 package com.josetra.yonder.ui.login
 
-import com.google.android.gms.common.SignInButton
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.*
+import android.view.View
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.signin.*
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.josetra.yonder.MainActivity
 import com.josetra.yonder.R
+import com.josetra.yonder.databinding.ActivityLoginBinding
 import com.josetra.yonder.ui.register.RegisterActivity
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
+    private lateinit var binding: ActivityLoginBinding
 
     private val TAG = "LoginActivity"
-    private val RC_SIGN_IN = 9001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Firebase auth
         auth = FirebaseAuth.getInstance()
 
-        // Configurar Google Sign-In
+        // Configure Google Sign-In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // Botón de Google
-        val googleSignInButton: SignInButton = findViewById(R.id.googleSignInButton)
-        googleSignInButton.setOnClickListener {
+        // Google Sign-In Launcher
+        googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                handleGoogleSignInResult(task)
+            } else {
+                showLoading(false)
+                Toast.makeText(this, "Inicio de sesión con Google cancelado", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        setupClickListeners()
+    }
+
+    private fun setupClickListeners() {
+        binding.googleSignInButton.setOnClickListener {
             signInWithGoogle()
         }
 
-        // Ir a registro
-        val goToRegisterTextView: TextView = findViewById(R.id.goToRegisterTextView)
-        goToRegisterTextView.setOnClickListener {
+        binding.goToRegisterTextView.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
-        // Iniciar sesión con correo (puedes completar esta lógica después)
-        val loginButton: Button = findViewById(R.id.loginButton)
-        loginButton.setOnClickListener {
-            val email = findViewById<EditText>(R.id.emailEditText).text.toString().trim()
-            val password = findViewById<EditText>(R.id.passwordEditText).text.toString().trim()
-
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this, com.josetra.yonder.MainActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-            } else {
-                Toast.makeText(this, "Completa los campos", Toast.LENGTH_SHORT).show()
-            }
+        binding.loginButton.setOnClickListener {
+            loginWithEmailAndPassword()
         }
     }
 
-    private fun signInWithGoogle() {
-        val signInIntent = googleSignInClient.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
+    private fun loginWithEmailAndPassword() {
+        val email = binding.emailEditText.text.toString().trim()
+        val password = binding.passwordEditText.text.toString().trim()
+
+        if (!validateInput(email, password)) return
+
+        showLoading(true)
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                showLoading(false)
+                if (task.isSuccessful) {
+                    navigateToMain()
+                } else {
+                    handleLoginFailure(task.exception)
+                }
+            }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    private fun signInWithGoogle() {
+        showLoading(true)
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
+    }
 
-        if (requestCode == RC_SIGN_IN) {
-            Log.d(TAG, "Entró a onActivityResult con RC_SIGN_IN")
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                val idToken = account?.idToken
-
-                if (idToken != null) {
-                    Log.d(TAG, "ID Token recibido: $idToken")
-                    firebaseAuthWithGoogle(idToken)
-                } else {
-                    Log.e(TAG, "ID Token es null")
-                    Toast.makeText(this, "No se recibió ID Token", Toast.LENGTH_LONG).show()
-                }
-            } catch (e: ApiException) {
-                Log.e(TAG, "Error al seleccionar cuenta de Google", e)
-                Toast.makeText(this, "Error al iniciar sesión con Google", Toast.LENGTH_SHORT).show()
+    private fun handleGoogleSignInResult(task: com.google.android.gms.tasks.Task<com.google.android.gms.auth.api.signin.GoogleSignInAccount>) {
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val idToken = account?.idToken
+            if (idToken != null) {
+                firebaseAuthWithGoogle(idToken)
+            } else {
+                showLoading(false)
+                Toast.makeText(this, "Error al obtener token de Google", Toast.LENGTH_SHORT).show()
             }
+        } catch (e: ApiException) {
+            showLoading(false)
+            Log.w(TAG, "Google sign in failed", e)
+            Toast.makeText(this, "Error de Google Sign-In: ${e.statusCode}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -108,17 +118,53 @@ class LoginActivity : AppCompatActivity() {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
+                showLoading(false)
                 if (task.isSuccessful) {
-                    Log.d(TAG, "signInWithCredential:success")
-                    Toast.makeText(this, "Inicio de sesión con Google exitoso", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, com.josetra.yonder.MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish()
+                    navigateToMain()
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
-                    Toast.makeText(this, "Falló el login con Google", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Falló la autenticación con Google.", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun validateInput(email: String, password: String): Boolean {
+        if (email.isEmpty()) {
+            binding.emailInputLayout.error = "El correo no puede estar vacío"
+            return false
+        } else {
+            binding.emailInputLayout.error = null
+        }
+
+        if (password.isEmpty()) {
+            binding.passwordInputLayout.error = "La contraseña no puede estar vacía"
+            return false
+        } else {
+            binding.passwordInputLayout.error = null
+        }
+        return true
+    }
+
+    private fun handleLoginFailure(exception: Exception?) {
+        val errorMessage = when (exception) {
+            is FirebaseAuthInvalidUserException -> "El usuario no existe. Por favor, regístrese."
+            is FirebaseAuthInvalidCredentialsException -> "Las credenciales son incorrectas."
+            else -> "Error al iniciar sesión: ${exception?.message}"
+        }
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.loginButton.isEnabled = !isLoading
+        binding.googleSignInButton.isEnabled = !isLoading
+    }
+
+    private fun navigateToMain() {
+        Toast.makeText(this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }
