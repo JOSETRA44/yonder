@@ -2,24 +2,29 @@
     <string name="app_name">Yonder</string>
     <string name="default_web_client_id">499722278366-tpiq5vck9ib1l1c0kb9llk4mdii253n5.apps.googleusercontent.com</string>
 
-    <!-- Cadenas para pantalla de inicio de sesión -->
-    <string name="welcome_title">Bienvenido a Yonder</string>
-    <string name="login_with_google">Iniciar sesión con Google</string>
-    <string name="or_separator">— o —</string>
+    <!-- General -->
     <string name="email_hint">Correo electrónico</string>
     <string name="password_hint">Contraseña</string>
-    <string name="login_button">Iniciar sesión</string>
-    <string name="no_account_question">¿No tienes cuenta?</string>
-    <string name="register_now">Regístrate</string>
-    <string name="register_title">Crear Cuenta</string>
-    <string name="full_name">Nombre completo</string>
-    <string name="university">Universidad</string>
-    <string name="major">Carrera</string>
-    <string name="university_code">Código universitario</string>
-    <string name="email">Correo electrónico</string>
-    <string name="password">Contraseña</string>
-    <string name="confirm_password">Confirmar contraseña</string>
-    <string name="register">Registrarse</string>
-    <string name="already_have_account">¿Ya tienes una cuenta? Inicia sesión</string>
+    <string name="app_logo_description">Logo de la aplicación</string>
 
+    <!-- Login Screen -->
+    <string name="login_title">Iniciar sesión</string>
+    <string name="login_button_text">Iniciar sesión</string>
+    <string name="no_account_prompt">¿No tienes cuenta? Regístrate</string>
+    <string name="google_sign_in_button_text">Continuar con Google</string>
+
+    <!-- Registration Screen -->
+    <string name="register_title">Crear Cuenta</string>
+    <string name="full_name_hint">Nombre completo</string>
+    <string name="university_hint">Universidad</string>
+    <string name="major_hint">Carrera</string>
+    <string name="university_code_hint">Código universitario</string>
+    <string name="confirm_password_hint">Confirmar contraseña</string>
+    <string name="register_button_text">Registrarse</string>
+    <string name="already_have_account_prompt">¿Ya tienes cuenta? Inicia sesión</string>
+
+    <!-- Main Screen -->
+    <string name="welcome_message">Bienvenido</string>
+    <string name="view_carnet_button_text">Ver Carnet Universitario</string>
+    <string name="logout_button_text">Cerrar sesión</string>
 </resources>
