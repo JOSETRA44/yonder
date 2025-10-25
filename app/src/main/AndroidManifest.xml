@@ -14,22 +14,17 @@
         android:theme="@style/Theme.Yonder">
 
         <activity
-            android:name="com.josetra.yonder.MainActivity"
+            android:name=".MainActivity"
             android:exported="false"
             android:theme="@style/Theme.Yonder" />
 
         <activity
-            android:name="com.josetra.yonder.ui.carnet.CarnetActivity"
+            android:name=".ui.carnet.CarnetActivity"
             android:exported="false"
             android:theme="@style/Theme.Yonder" />
 
         <activity
-            android:name="com.josetra.yonder.ui.register.RegisterActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Yonder" />
-
-        <activity
-            android:name="com.josetra.yonder.ui.login.LoginActivity"
+            android:name=".ui.auth.AuthActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Yonder">

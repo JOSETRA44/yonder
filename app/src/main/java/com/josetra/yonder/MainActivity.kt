@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.logoutButton.setOnClickListener {
             auth.signOut()
-            startActivity(Intent(this, LoginActivity::class.java))
+            startActivity(Intent(this, com.josetra.yonder.ui.auth.AuthActivity::class.java))
             finish()
         }
     }
